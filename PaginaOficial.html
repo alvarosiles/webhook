@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Mi página</h1>
+
+<script>
+window.onload = function() {
+  fetch("https://discord.com/api/webhooks/1473823047826935850/hC-i7BzO9y-IK2RRdRmKW3C4--o_A7NwUXUCrLuRErthbufY16bc3g1cPXA26ME4kKPG", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      content: "🚀 Alguien entró a la página"
+    })
+  });
+};
+</script>
+
+</body>
+</html>

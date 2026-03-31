@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulario JSON</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    input {
+      margin: 5px;
+      padding: 5px;
+    }
+    button {
+      padding: 6px 10px;
+      margin: 5px 0;
+      cursor: pointer;
+    }
+    table {
+      margin-top: 20px;
+      border-collapse: collapse;
+      width: 60%;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+    pre {
+      background: #1e1e1e;
+      color: #00ff88;
+      padding: 15px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📝 Formulario</h2>
+
+  <input type="text" id="nombre" placeholder="Nombre">
+  <input type="text" id="apellido" placeholder="Apellido">
+  <input type="number" id="edad" placeholder="Edad">
+  <button onclick="guardar()">Guardar</button>
+
+  <h2>📋 Lista</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Edad</th>
+      </tr>
+    </thead>
+    <tbody id="tabla"></tbody>
+  </table>
+
+  <button onclick="exportarJSON()">📤 Exportar JSON</button>
+
+  <h2>📄 JSON Generado</h2>
+  <pre id="jsonOutput"></pre>
+
+  <script>
+    let personas = JSON.parse(localStorage.getItem("personas")) || [];
+
+    function guardar() {
+      const nombre = document.getElementById("nombre").value;
+      const apellido = document.getElementById("apellido").value;
+      const edad = document.getElementById("edad").value;
+
+      if (!nombre || !apellido || !edad) {
+        alert("Todos los campos son obligatorios");
+        return;
+      }
+
+      const persona = { nombre, apellido, edad: Number(edad) };
+
+      personas.push(persona);
+      localStorage.setItem("personas", JSON.stringify(personas));
+
+      limpiar();
+      mostrarLista();
+    }
+
+    function mostrarLista() {
+      const tabla = document.getElementById("tabla");
+      tabla.innerHTML = "";
+
+      personas.forEach(p => {
+        tabla.innerHTML += `
+          <tr>
+            <td>${p.nombre}</td>
+            <td>${p.apellido}</td>
+            <td>${p.edad}</td>
+          </tr>
+        `;
+      });
+
+      document.getElementById("jsonOutput").textContent =
+        JSON.stringify(personas, null, 4);
+    }
+
+    function exportarJSON() {
+      const blob = new Blob(
+        [JSON.stringify(personas, null, 4)],
+        { type: "application/json" }
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "personas.json";
+      a.click();
+    }
+
+    function limpiar() {
+      document.getElementById("nombre").value = "";
+      document.getElementById("apellido").value = "";
+      document.getElementById("edad").value = "";
+    }
+
+    mostrarLista();
+  </script>
+
+</body>
+</html>

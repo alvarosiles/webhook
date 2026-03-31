@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>RRHH con Fotos</title>
+<style>
+body { font-family: Arial; margin: 40px; }
+input { margin: 5px; padding: 5px; }
+button { padding: 6px 10px; margin: 5px 0; cursor: pointer; }
+table { margin-top: 20px; border-collapse: collapse; width: 80%; }
+table, th, td { border: 1px solid #ccc; }
+th, td { padding: 8px; text-align: center; }
+img { border-radius: 6px; }
+</style>
+</head>
+<body>
+
+<h2>RRHH - Registro con Foto</h2>
+
+<form id="formulario" enctype="multipart/form-data">
+<input type="text" name="nombre" placeholder="Nombre" required>
+<input type="text" name="apellido" placeholder="Apellido" required>
+<input type="number" name="edad" placeholder="Edad" required>
+<input type="file" name="foto" accept="image/*">
+<button type="submit">Guardar</button>
+</form>
+
+<h3>Lista</h3>
+
+<table>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>Apellido</th>
+<th>Edad</th>
+<th>Foto</th>
+</tr>
+</thead>
+<tbody id="tabla"></tbody>
+</table>
+
+<script>
+function cargarJSON() {
+  fetch("/rrhh")
+    .then(res => res.json())
+    .then(data => mostrar(data));
+}
+
+function mostrar(personas) {
+  const tabla = document.getElementById("tabla");
+  tabla.innerHTML = "";
+
+  personas.forEach(p => {
+    tabla.innerHTML += `
+      <tr>
+        <td>${p.nombre}</td>
+        <td>${p.apellido}</td>
+        <td>${p.edad}</td>
+        <td>
+          ${p.foto ? '<img src="/uploads/' + p.foto + '" width="70">' : "Sin foto"}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+document.getElementById("formulario")
+.addEventListener("submit", function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+
+  fetch("/rrhh", {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.json())
+  .then(() => {
+    this.reset();
+    cargarJSON();
+  });
+});
+
+cargarJSON();
+</script>
+
+</body>
+</html>

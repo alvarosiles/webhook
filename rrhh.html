@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>RRHH con Backend</title>
+<style>
+body { font-family: Arial; margin: 40px; }
+input { margin: 5px; padding: 5px; }
+button { padding: 6px 10px; margin: 5px 0; cursor: pointer; }
+table { margin-top: 20px; border-collapse: collapse; width: 60%; }
+table, th, td { border: 1px solid #ccc; }
+th, td { padding: 8px; text-align: center; }
+pre { background: #1e1e1e; color: #00ff88; padding: 15px; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h2>RRHH - Registro</h2>
+
+<input type="text" id="nombre" placeholder="Nombre">
+<input type="text" id="apellido" placeholder="Apellido">
+<input type="number" id="edad" placeholder="Edad">
+<button onclick="guardarRegistro()">Guardar</button>
+
+<h3>Lista</h3>
+<table>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>Apellido</th>
+<th>Edad</th>
+</tr>
+</thead>
+<tbody id="tabla"></tbody>
+</table>
+
+<h3>JSON Actual</h3>
+<pre id="jsonOutput"></pre>
+
+<script>
+let personas = [];
+
+// 🔹 Cargar JSON al inicio
+function cargarJSON() {
+  fetch("http://localhost:3000/rrhh")
+    .then(res => res.json())
+    .then(data => {
+      personas = data;
+      mostrar();
+    })
+    .catch(err => console.log("Error al cargar rrhh.json:", err));
+}
+
+// 🔹 Mostrar lista y JSON
+function mostrar() {
+  const tabla = document.getElementById("tabla");
+  tabla.innerHTML = "";
+
+  personas.forEach(p => {
+    tabla.innerHTML += `
+      <tr>
+        <td>${p.nombre}</td>
+        <td>${p.apellido}</td>
+        <td>${p.edad}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("jsonOutput").textContent =
+    JSON.stringify(personas, null, 4);
+}
+
+// 🔹 Guardar registro nuevo
+function guardarRegistro() {
+  const nombre = document.getElementById("nombre").value;
+  const apellido = document.getElementById("apellido").value;
+  const edad = document.getElementById("edad").value;
+
+  if (!nombre || !apellido || !edad) {
+    alert("Todos los campos son obligatorios");
+    return;
+  }
+
+  personas.push({ nombre, apellido, edad: Number(edad) });
+
+  // Guardar en backend
+  fetch("http://localhost:3000/rrhh", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(personas)
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log("Guardado:", data);
+    limpiar();
+    mostrar();
+  })
+  .catch(err => console.log("Error al guardar:", err));
+}
+
+// 🔹 Limpiar formulario
+function limpiar() {
+  document.getElementById("nombre").value = "";
+  document.getElementById("apellido").value = "";
+  document.getElementById("edad").value = "";
+}
+
+// Cargar al inicio
+cargarJSON();
+</script>
+
+</body>
+</html>

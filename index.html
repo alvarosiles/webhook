@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<textarea id="mensaje" placeholder="Escribe algo..." >
+    Una persona hipocondríaca:
+
+Interpreta síntomas normales (dolor leve, cansancio, un lunar) como algo grave.
+
+Busca constantemente información médica.
+
+Se revisa el cuerpo repetidamente.
+
+Va mucho al médico o, al contrario, evita ir por miedo al diagnóstico.
+
+No se tranquiliza aunque los estudios salgan bien.
+</textarea>
+<br><br>
+<button onclick="enviar()">Enviar</button>
+
+<script>
+function enviar() {
+  const texto = document.getElementById("mensaje").value;
+
+  fetch("https://discord.com/api/webhooks/1473822139143422206/U-Rx-ykXciJ5Z4XqXla_L7oeW_9O-3ZjVsI20dggJlmYcfSK_-idAmpMvqHuTF64jcUc", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      content: texto
+    })
+  })
+  .then(() => alert("Mensaje enviado"))
+  .catch(() => alert("Error al enviar"));
+}
+</script>
+
+</body>
+</html>

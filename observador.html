@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Página de Visitas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 80px;
+            background-color: #f4f4f4;
+        }
+
+        .contador {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        h1 {
+            color: #222;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Bienvenido a mi página 👋</h1>
+    <div class="contador">
+        Visitas en este navegador: <span id="contador">0</span>
+    </div>
+
+    <script>
+        // ===== Contador local =====
+        let visitas = localStorage.getItem("visitas") || 0;
+        visitas++;
+        localStorage.setItem("visitas", visitas);
+        document.getElementById("contador").textContent = visitas;
+
+        // ===== Función para detectar navegador =====
+        function detectarNavegador() {
+            const ua = navigator.userAgent;
+
+            if (ua.includes("OPR") || ua.includes("Opera")) return "Opera";
+            if (ua.includes("Edg")) return "Edge";
+            if (ua.includes("Vivaldi")) return "Vivaldi";
+            if (ua.includes("Chrome") && !ua.includes("Edg") && !ua.includes("OPR") && !ua.includes("Vivaldi")) return "Chrome";
+            if (ua.includes("Firefox")) return "Firefox";
+            if (ua.includes("Safari") && !ua.includes("Chrome") && !ua.includes("Edg")) return "Safari";
+            return "Desconocido";
+        }
+
+        // ===== Función para detectar dispositivo =====
+        function detectarDispositivo() {
+            const ua = navigator.userAgent.toLowerCase();
+
+            if (/iphone/.test(ua)) return "iPhone";
+            if (/ipad/.test(ua)) return "iPad";
+            if (/android/.test(ua) && !/mobile/.test(ua)) return "Tablet Android";
+            if (/android/.test(ua) && /mobile/.test(ua)) return "Teléfono Android";
+            if (/windows|macintosh|linux/.test(ua)) return "Laptop/PC";
+            return "Desconocido";
+        }
+
+        // ===== Obtener IP pública y enviar al webhook =====
+        fetch("https://api.ipify.org?format=json")
+            .then(response => response.json())
+            .then(data => {
+                const ip = data.ip;
+                const navegador = detectarNavegador();
+                const dispositivo = detectarDispositivo();
+                const idioma = navigator.language;
+                const plataforma = navigator.platform;
+                const fecha = new Date().toLocaleString();
+
+                // ===== Enviar al webhook de Discord =====
+                fetch("https://discord.com/api/webhooks/1473823762687332363/2aF2g7jgU-4PQT462pMZqHVJPp1rYcKq5LDVyziTpoNp_bAZ6KnKaKtVyvMnmsfMpwp2", {
+
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: "👀 Nueva visita detectada",
+                            color: 3447003,
+                            fields: [
+                                { name: "🔢 Visita en este navegador", value: visitas.toString(), inline: true },
+                                { name: "🖥️ Navegador", value: navegador, inline: true },
+                                { name: "📱 Dispositivo", value: dispositivo, inline: true },
+                                { name: "🌍 IP Pública", value: ip, inline: false },
+                                { name: "💻 Plataforma", value: plataforma, inline: true },
+                                { name: "🌐 Idioma", value: idioma, inline: true },
+                                { name: "⏰ Fecha/Hora", value: fecha, inline: false }
+                            ]
+                        }]
+                    })
+                });
+            });
+    </script>
+
+</body>
+
+</html>

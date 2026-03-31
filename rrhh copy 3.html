@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>RRHH Directo</title>
+<style>
+body { font-family: Arial; margin: 40px; }
+input { margin: 5px; padding: 5px; }
+button { padding: 6px 10px; margin: 5px; cursor: pointer; }
+table { margin-top: 20px; border-collapse: collapse; width: 60%; }
+table, th, td { border: 1px solid #ccc; }
+th, td { padding: 8px; text-align: center; }
+pre { background: #1e1e1e; color: #00ff88; padding: 15px; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h2>RRHH - Gestión JSON</h2>
+
+<input type="text" id="nombre" placeholder="Nombre">
+<input type="text" id="apellido" placeholder="Apellido">
+<input type="number" id="edad" placeholder="Edad">
+
+<button onclick="guardarRegistro()">Agregar</button>
+<button onclick="guardarJSON()">Guardar JSON</button>
+
+<h3>Lista</h3>
+<table>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>Apellido</th>
+<th>Edad</th>
+</tr>
+</thead>
+<tbody id="tabla"></tbody>
+</table>
+
+<h3>JSON Actual</h3>
+<pre id="jsonOutput"></pre>
+
+<script>
+let personas = [];
+
+/* 🔥 Se ejecuta automáticamente al cargar */
+window.addEventListener("DOMContentLoaded", abrirArchivo);
+
+async function abrirArchivo() {
+    try {
+        const response = await fetch("./rrhh.json");
+        personas = await response.json();
+        mostrar();
+    } catch (error) {
+        console.error("Error al abrir rrhh.json", error);
+        alert("No se pudo cargar rrhh.json desde el servidor");
+    }
+}
+
+function mostrar() {
+    const tabla = document.getElementById("tabla");
+    tabla.innerHTML = "";
+    personas.forEach(p => {
+        tabla.innerHTML += `
+        <tr>
+            <td>${p.nombre}</td>
+            <td>${p.apellido}</td>
+            <td>${p.edad}</td>
+        </tr>`;
+    });
+    document.getElementById("jsonOutput").textContent = JSON.stringify(personas, null, 4);
+}
+
+async function guardarRegistro() {
+    const nombre = document.getElementById("nombre").value;
+    const apellido = document.getElementById("apellido").value;
+    const edad = document.getElementById("edad").value;
+
+    if (!nombre || !apellido || !edad) {
+        alert("Todos los campos son obligatorios");
+        return;
+    }
+
+    personas.push({ nombre, apellido, edad: Number(edad) });
+    limpiar();
+    mostrar();
+}
+
+async function guardarJSON() {
+    try {
+        await fetch("./", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(personas)
+        });
+        alert("Archivo base.json guardado correctamente en el proyecto!");
+    } catch (error) {
+        console.error("Error al guardar base.json", error);
+        alert("No se pudo guardar base.json");
+    }
+}
+
+function limpiar() {
+    document.getElementById("nombre").value = "";
+    document.getElementById("apellido").value = "";
+    document.getElementById("edad").value = "";
+}
+</script>
+
+</body>
+</html>
